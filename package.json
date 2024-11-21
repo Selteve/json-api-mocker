@@ -1,0 +1,57 @@
+{
+  "name": "json-api-mocker",
+  "version": "1.0.1",
+  "description": "一个基于 JSON 配置的 Mock 服务器",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "json-mock-server": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "README.ch.md"
+  ],
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mock",
+    "server",
+    "json",
+    "api",
+    "typescript",
+    "rest",
+    "api-mock",
+    "mock-server"
+  ],
+  "author": "Xiong Haiyin",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Selteve/json-api-mocker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Selteve/json-api-mocker/issues"
+  },
+  "homepage": "https://github.com/Selteve/json-api-mocker#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.13",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.0",
+    "jest": "^27.5.1",
+    "nodemon": "^2.0.22",
+    "ts-jest": "^27.1.5",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
+  }
+}

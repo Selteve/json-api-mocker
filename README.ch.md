@@ -1,0 +1,216 @@
+# JSON Mock Server
+
+一个轻量级且灵活的 Mock 服务器，通过 JSON 配置快速创建 RESTful API。
+
+<p align="center">
+  <img src="https://img.shields.io/npm/v/json-mock-server" alt="npm 版本" />
+  <img src="https://img.shields.io/npm/l/json-mock-server" alt="许可证" />
+  <img src="https://img.shields.io/npm/dt/json-mock-server" alt="下载量" />
+</p>
+
+## ✨ 特性
+
+- 🚀 通过 JSON 配置快速搭建
+- 🔄 支持 GET、POST、PUT、DELETE 方法
+- 📝 自动数据持久化
+- 🔍 内置分页支持
+- 🛠 可自定义响应结构
+- 💡 TypeScript 支持
+
+## 📦 安装
+
+```bash
+# 使用 npm
+npm install json-mock-server
+
+# 使用 yarn
+yarn add json-mock-server
+
+# 使用 pnpm
+pnpm add json-mock-server
+```
+
+## 🚀 快速开始
+
+### 1. 创建配置文件
+
+在项目根目录创建 `data.json` 文件：
+
+```json
+{
+  "server": {
+    "port": 8080,
+    "baseProxy": "/api"
+  },
+  "routes": [
+    {
+      "path": "/users",
+      "methods": {
+        "get": {
+          "type": "array",
+          "pagination": {
+            "enabled": true,
+            "pageSize": 10,
+            "totalCount": 100
+          },
+          "response": [
+            {
+              "id": 1,
+              "name": "张三",
+              "age": 30,
+              "city": "北京"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+```
+
+### 2. 启动服务器
+
+```bash
+npx json-mock-server
+```
+
+现在你的 Mock 服务器已经在 `http://localhost:8080` 运行了！
+
+## 📖 配置指南
+
+### 服务器配置
+
+`server` 部分配置基本的服务器设置：
+
+```json
+{
+  "server": {
+    "port": 8080,      // 服务器端口号
+    "baseProxy": "/api" // 所有路由的基础路径
+  }
+}
+```
+
+### 路由配置
+
+每个路由可以支持多个 HTTP 方法：
+
+```json
+{
+  "path": "/users",    // 路由路径
+  "methods": {
+    "get": {
+      "type": "array", // 响应类型：array 或 object
+      "pagination": {  // 可选的分页设置
+        "enabled": true,
+        "pageSize": 10,
+        "totalCount": 100
+      },
+      "response": []   // 响应数据
+    },
+    "post": {
+      "requestSchema": {  // 请求体验证模式
+        "name": "string",
+        "age": "number"
+      },
+      "response": {
+        "success": true
+      }
+    }
+  }
+}
+```
+
+## 🎯 API 示例
+
+### 基本的 CRUD 操作
+
+#### 获取用户列表
+```bash
+curl http://localhost:8080/api/users
+```
+
+#### 获取单个用户
+```bash
+curl http://localhost:8080/api/users/1
+```
+
+#### 创建用户
+```bash
+curl -X POST http://localhost:8080/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"name":"李四","age":25,"city":"上海"}'
+```
+
+#### 更新用户
+```bash
+curl -X PUT http://localhost:8080/api/users/1 \
+  -H "Content-Type: application/json" \
+  -d '{"name":"李四","age":26,"city":"上海"}'
+```
+
+#### 删除用户
+```bash
+curl -X DELETE http://localhost:8080/api/users/1
+```
+
+### 高级用法
+
+#### 分页
+```bash
+# 获取第2页，每页10条数据
+curl http://localhost:8080/api/users?page=2&pageSize=10
+```
+
+#### 自定义响应头
+服务器自动添加以下响应头：
+- `X-Total-Count`：数据总条数（用于分页响应）
+
+## 🔧 高级配置
+
+### 动态路由
+
+你可以在路由中使用 URL 参数：
+
+```json
+{
+  "path": "/users/:id/posts",
+  "methods": {
+    "get": {
+      "type": "array",
+      "response": []
+    }
+  }
+}
+```
+
+### 请求验证
+
+为 POST/PUT 请求添加模式验证：
+
+```json
+{
+  "requestSchema": {
+    "name": "string",
+    "age": "number",
+    "email": "string"
+  }
+}
+```
+
+## 🤝 贡献指南
+
+1. Fork 本仓库
+2. 创建你的特性分支 (`git checkout -b feature/amazing-feature`)
+3. 提交你的改动 (`git commit -m '添加一些很棒的特性'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 开启一个 Pull Request
+
+## 📄 许可证
+
+MIT © [熊海印]
+
+## 🙏 致谢
+
+- 感谢 Express.js 提供出色的 Web 框架
+- 感谢所有贡献者和用户
