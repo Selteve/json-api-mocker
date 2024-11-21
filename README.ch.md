@@ -1,4 +1,4 @@
-# JSON Mock Server
+# JSON API Mocker
 
 一个轻量级且灵活的 Mock 服务器，通过 JSON 配置快速创建 RESTful API。
 
@@ -21,13 +21,13 @@
 
 ```bash
 # 使用 npm
-npm install json-mock-server
+npm install json-api-mocker
 
 # 使用 yarn
-yarn add json-mock-server
+yarn add json-api-mocker
 
 # 使用 pnpm
-pnpm add json-mock-server
+pnpm add json-api-mocker
 ```
 
 ## 🚀 快速开始
@@ -71,7 +71,7 @@ pnpm add json-mock-server
 ### 2. 启动服务器
 
 ```bash
-npx json-mock-server
+npx json-api-mocker
 ```
 
 现在你的 Mock 服务器已经在 `http://localhost:8080` 运行了！

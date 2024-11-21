@@ -1,11 +1,11 @@
-# JSON Mock Server
+# JSON API Mocker
 
 A lightweight and flexible mock server that uses JSON configuration to quickly create RESTful APIs.
 
 <p align="center">
-  <img src="https://img.shields.io/npm/v/json-mock-server" alt="npm version" />
-  <img src="https://img.shields.io/npm/l/json-mock-server" alt="license" />
-  <img src="https://img.shields.io/npm/dt/json-mock-server" alt="downloads" />
+  <img src="https://img.shields.io/npm/v/json-api-mocker" alt="npm version" />
+  <img src="https://img.shields.io/npm/l/json-api-mocker" alt="license" />
+  <img src="https://img.shields.io/npm/dt/json-api-mocker" alt="downloads" />
 </p>
 
 ## ✨ Features
@@ -20,14 +20,14 @@ A lightweight and flexible mock server that uses JSON configuration to quickly c
 ## 📦 Installation
 
 ```bash
-# 使用 npm
-npm install json-mock-server
+# Using npm
+npm install json-api-mocker
 
-# 使用 yarn
-yarn add json-mock-server
+# Using yarn
+yarn add json-api-mocker
 
-# 使用 pnpm
-pnpm add json-mock-server
+# Using pnpm
+pnpm add json-api-mocker
 ```
 
 ## 🚀 Quick Start
@@ -71,7 +71,7 @@ Create a `data.json` file in your project root:
 ### 2. Start the Server
 
 ```bash
-npx json-mock-server
+npx json-api-mocker
 ```
 
 Now your mock server is running at `http://localhost:8080`!
