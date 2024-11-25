@@ -3,10 +3,11 @@
 一个轻量级且灵活的 Mock 服务器，通过 JSON 配置快速创建 RESTful API。
 
 <p align="center">
-  <img src="https://img.shields.io/npm/v/json-mock-server" alt="npm 版本" />
-  <img src="https://img.shields.io/npm/l/json-mock-server" alt="许可证" />
-  <img src="https://img.shields.io/npm/dt/json-mock-server" alt="下载量" />
+  <img src="https://img.shields.io/npm/v/json-api-mocker" alt="npm version" />
+  <img src="https://img.shields.io/npm/l/json-api-mocker" alt="license" />
+  <img src="https://img.shields.io/npm/dt/json-api-mocker" alt="downloads" />
 </p>
+
 
 ## ✨ 特性
 
