@@ -28,10 +28,10 @@ export class MockServer {
           [`data|${total}`]: [template]
         }).data;
       }
-      return config.response || [];
+      return config.response;
     } catch (error) {
       console.error('生成 Mock 数据时出错:', error);
-      return config.response || [];
+      return config.response;
     }
   }
 

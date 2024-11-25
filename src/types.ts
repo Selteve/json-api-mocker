@@ -17,11 +17,10 @@ export interface MockConfig {
 
 export interface MethodConfig {
   type?: 'array' | 'object';
-  pagination?: PaginationConfig;
-  mock?: MockConfig;
   response?: any;
+  mock?: MockConfig;
+  pagination?: PaginationConfig;
   requestSchema?: Record<string, string>;
-  params?: string[];
 }
 
 export interface RouteConfig {
