@@ -70,11 +70,42 @@ pnpm add json-api-mocker
 
 ### 2. 启动服务器
 
+有多种方式可以启动 Mock 服务器：
+
 ```bash
+# 方式一：使用 npx（推荐）
 npx json-api-mocker
+
+# 方式二：使用 npx 并指定配置文件
+npx json-api-mocker ./custom-config.json
+
+# 方式三：如果全局安装了包
+json-api-mocker
+
+# 方式四：如果作为项目依赖安装
+# 在 package.json 的 scripts 中添加：
+{
+  "scripts": {
+    "mock": "json-api-mocker"
+  }
+}
+# 然后运行：
+npm run mock
 ```
 
 现在你的 Mock 服务器已经在 `http://localhost:8080` 运行了！
+
+你会看到类似这样的输出：
+```bash
+Mock 服务器已启动：
+- 地址：http://localhost:8080
+- 基础路径：/api
+可用的接口：
+  GET http://localhost:8080/api/users
+  POST http://localhost:8080/api/users
+  PUT http://localhost:8080/api/users/:id
+  DELETE http://localhost:8080/api/users/:id
+```
 
 ## 📖 配置指南
 

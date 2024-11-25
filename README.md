@@ -70,11 +70,42 @@ Create a `data.json` file in your project root:
 
 ### 2. Start the Server
 
+There are several ways to start the mock server:
+
 ```bash
+# Method 1: Using npx (Recommended)
 npx json-api-mocker
+
+# Method 2: Using npx with a custom config file
+npx json-api-mocker ./custom-config.json
+
+# Method 3: If installed globally
+json-api-mocker
+
+# Method 4: If installed as a project dependency
+# Add this to your package.json scripts:
+{
+  "scripts": {
+    "mock": "json-api-mocker"
+  }
+}
+# Then run:
+npm run mock
 ```
 
 Now your mock server is running at `http://localhost:8080`!
+
+You'll see output like this:
+```bash
+Mock Server is running:
+- Address: http://localhost:8080
+- Base Path: /api
+Available APIs:
+  GET http://localhost:8080/api/users
+  POST http://localhost:8080/api/users
+  PUT http://localhost:8080/api/users/:id
+  DELETE http://localhost:8080/api/users/:id
+```
 
 ## 📖 Configuration Guide
 
