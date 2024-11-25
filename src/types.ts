@@ -9,10 +9,17 @@ export interface PaginationConfig {
   totalCount: number;
 }
 
+export interface MockConfig {
+  enabled: boolean;
+  total: number;
+  template: Record<string, any>;
+}
+
 export interface MethodConfig {
   type?: 'array' | 'object';
   pagination?: PaginationConfig;
-  response: any;
+  mock?: MockConfig;
+  response?: any;
   requestSchema?: Record<string, string>;
   params?: string[];
 }

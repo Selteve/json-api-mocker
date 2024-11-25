@@ -15,6 +15,7 @@ A lightweight and flexible mock server that uses JSON configuration to quickly c
 - 📝 Automatic data persistence
 - 🔍 Built-in pagination support
 - 🛠 Customizable response schemas
+- 💡 Integration with Mock.js for powerful data mocking
 - 💡 TypeScript support
 
 ## 📦 Installation
@@ -147,6 +148,104 @@ Each route can support multiple HTTP methods:
       "response": {
         "success": true
       }
+    }
+  }
+}
+```
+
+### Mock.js Integration
+
+You can use Mock.js templates to generate dynamic data:
+
+```json
+{
+  "path": "/users",
+  "methods": {
+    "get": {
+      "type": "array",
+      "mock": {
+        "enabled": true,
+        "total": 200,
+        "template": {
+          "id|+1": 1,
+          "name": "@name",
+          "email": "@email",
+          "age|18-60": 1,
+          "address": "@city(true)",
+          "avatar": "@image('200x200')",
+          "createTime": "@datetime"
+        }
+      },
+      "pagination": {
+        "enabled": true,
+        "pageSize": 10
+      }
+    }
+  }
+}
+```
+
+#### Available Mock.js Templates
+
+- `@name` - Generate random name
+- `@email` - Generate random email
+- `@datetime` - Generate random datetime
+- `@image` - Generate random image URL
+- `@city` - Generate random city name
+- `@id` - Generate random ID
+- `@guid` - Generate GUID
+- `@title` - Generate random title
+- `@paragraph` - Generate random paragraph
+- `|+1` - Auto increment number
+
+For more Mock.js templates, visit [Mock.js Documentation](http://mockjs.com/examples.html)
+
+#### Examples with Mock.js
+
+1. Generate user list with random data:
+```json
+{
+  "mock": {
+    "enabled": true,
+    "total": 100,
+    "template": {
+      "id|+1": 1,
+      "name": "@name",
+      "email": "@email"
+    }
+  }
+}
+```
+
+2. Generate article list with random content:
+```json
+{
+  "mock": {
+    "enabled": true,
+    "total": 50,
+    "template": {
+      "id|+1": 1,
+      "title": "@title",
+      "content": "@paragraph",
+      "author": "@name",
+      "publishDate": "@datetime"
+    }
+  }
+}
+```
+
+3. Generate product list with random prices:
+```json
+{
+  "mock": {
+    "enabled": true,
+    "total": 30,
+    "template": {
+      "id|+1": 1,
+      "name": "@title(3, 5)",
+      "price|100-1000.2": 1,
+      "category": "@pick(['Electronics', 'Books', 'Clothing'])",
+      "image": "@image('200x200', '#50B347', '#FFF', 'Mock.js')"
     }
   }
 }

@@ -1,7 +1,6 @@
+import Mock from 'mockjs';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import fs from 'fs';
-import path from 'path';
 import { Config, MethodConfig } from './types';
 
 export class MockServer {
@@ -11,7 +10,7 @@ export class MockServer {
 
   constructor(config: Config, configPath: string = 'data.json') {
     this.config = config;
-    this.configPath = path.resolve(process.cwd(), configPath);
+    this.configPath = configPath;
     this.setupMiddleware();
     this.setupRoutes();
   }
@@ -21,37 +20,54 @@ export class MockServer {
     this.app.use(express.json());
   }
 
+  private generateMockData(config: MethodConfig) {
+    try {
+      if (config.mock?.enabled && config.mock.template) {
+        const { total, template } = config.mock;
+        return Mock.mock({
+          [`data|${total}`]: [template]
+        }).data;
+      }
+      return config.response || [];
+    } catch (error) {
+      console.error('生成 Mock 数据时出错:', error);
+      return config.response || [];
+    }
+  }
+
+  private handleRequest(config: MethodConfig) {
+    return (req: Request, res: Response) => {
+      try {
+        console.log(`收到请求: ${req.method} ${req.url}`);
+        
+        let responseData = this.generateMockData(config);
+
+        if (config.pagination?.enabled && Array.isArray(responseData)) {
+          const page = parseInt(req.query.page as string) || 1;
+          const pageSize = parseInt(req.query.pageSize as string) || config.pagination.pageSize;
+          const startIndex = (page - 1) * pageSize;
+          const endIndex = startIndex + pageSize;
+          
+          const paginatedData = responseData.slice(startIndex, endIndex);
+          
+          res.header('X-Total-Count', responseData.length.toString());
+          responseData = paginatedData;
+        }
+
+        res.json(responseData);
+      } catch (error) {
+        console.error('处理请求时出错:', error);
+        res.status(500).json({ error: '服务器内部错误' });
+      }
+    };
+  }
+
   private setupRoutes() {
     this.config.routes.forEach((route) => {
       Object.entries(route.methods).forEach(([method, methodConfig]) => {
         this.createRoute(route.path, method, methodConfig);
       });
     });
-  }
-
-  private saveConfig() {
-    fs.writeFileSync(this.configPath, JSON.stringify(this.config, null, 2), 'utf-8');
-  }
-
-  private findUserById(id: number) {
-    const usersRoute = this.config.routes.find(route => route.path === '/users');
-    if (!usersRoute) return null;
-
-    const getMethod = usersRoute.methods.get;
-    if (!getMethod || !Array.isArray(getMethod.response)) return null;
-
-    return getMethod.response.find(user => user.id === id);
-  }
-
-  private getNextUserId() {
-    const usersRoute = this.config.routes.find(route => route.path === '/users');
-    if (!usersRoute) return 1;
-
-    const getMethod = usersRoute.methods.get;
-    if (!getMethod || !Array.isArray(getMethod.response)) return 1;
-
-    const maxId = Math.max(...getMethod.response.map(user => user.id));
-    return maxId + 1;
   }
 
   private createRoute(path: string, method: string, config: MethodConfig) {
@@ -63,104 +79,15 @@ export class MockServer {
         this.app.get(fullPath, this.handleRequest(config));
         break;
       case 'post':
-        this.app.post(fullPath, this.handlePostRequest(config));
+        this.app.post(fullPath, this.handleRequest(config));
         break;
       case 'put':
-        this.app.put(`${fullPath}/:id`, this.handlePutRequest(config));
+        this.app.put(`${fullPath}/:id`, this.handleRequest(config));
         break;
       case 'delete':
-        this.app.delete(`${fullPath}/:id`, this.handleDeleteRequest(config));
+        this.app.delete(`${fullPath}/:id`, this.handleRequest(config));
         break;
     }
-  }
-
-  private handleRequest(config: MethodConfig) {
-    return (req: Request, res: Response) => {
-      console.log(`收到请求: ${req.method} ${req.url}`);
-      
-      if (config.pagination?.enabled && config.type === 'array') {
-        const page = parseInt(req.query.page as string) || 1;
-        const pageSize = parseInt(req.query.pageSize as string) || config.pagination.pageSize;
-        const startIndex = (page - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        const data = config.response.slice(startIndex, endIndex);
-        
-        res.header('X-Total-Count', config.pagination.totalCount.toString());
-        res.json(data);
-      } else {
-        res.json(config.response);
-      }
-    };
-  }
-
-  private handlePostRequest(config: MethodConfig) {
-    return (req: Request, res: Response) => {
-      console.log(`收到创建请求: ${req.url}`, req.body);
-
-      const usersRoute = this.config.routes.find(route => route.path === '/users');
-      if (!usersRoute) {
-        return res.status(404).json({ error: '路由未找到' });
-      }
-
-      const getMethod = usersRoute.methods.get;
-      if (!getMethod || !Array.isArray(getMethod.response)) {
-        return res.status(500).json({ error: '数据格式错误' });
-      }
-
-      const newUser = {
-        id: this.getNextUserId(),
-        ...req.body
-      };
-
-      getMethod.response.push(newUser);
-      this.saveConfig();
-
-      res.status(201).json(newUser);
-    };
-  }
-
-  private handlePutRequest(config: MethodConfig) {
-    return (req: Request, res: Response) => {
-      const userId = parseInt(req.params.id);
-      console.log(`收到更新请求: ${req.url}`, req.body);
-
-      const user = this.findUserById(userId);
-      if (!user) {
-        return res.status(404).json({ error: '用户未找到' });
-      }
-
-      Object.assign(user, req.body);
-      this.saveConfig();
-
-      res.json(user);
-    };
-  }
-
-  private handleDeleteRequest(config: MethodConfig) {
-    return (req: Request, res: Response) => {
-      const userId = parseInt(req.params.id);
-      console.log(`收到删除请求: ${req.url}`);
-
-      const usersRoute = this.config.routes.find(route => route.path === '/users');
-      if (!usersRoute) {
-        return res.status(404).json({ error: '路由未找到' });
-      }
-
-      const getMethod = usersRoute.methods.get;
-      if (!getMethod || !Array.isArray(getMethod.response)) {
-        return res.status(500).json({ error: '数据格式错误' });
-      }
-
-      const userIndex = getMethod.response.findIndex(user => user.id === userId);
-      if (userIndex === -1) {
-        return res.status(404).json({ error: '用户未找到' });
-      }
-
-      getMethod.response.splice(userIndex, 1);
-      this.saveConfig();
-
-      res.json({ success: true, message: '删除成功' });
-    };
   }
 
   public start() {

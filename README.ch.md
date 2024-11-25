@@ -16,6 +16,7 @@
 - 📝 自动数据持久化
 - 🔍 内置分页支持
 - 🛠 可自定义响应结构
+- 💡 集成 Mock.js 实现强大的数据模拟
 - 💡 TypeScript 支持
 
 ## 📦 安装
@@ -148,6 +149,105 @@ Mock 服务器已启动：
       "response": {
         "success": true
       }
+    }
+  }
+}
+```
+
+### Mock.js 集成
+
+你可以使用 Mock.js 模板来生成动态数据：
+
+```json
+{
+  "path": "/users",
+  "methods": {
+    "get": {
+      "type": "array",
+      "mock": {
+        "enabled": true,
+        "total": 200,
+        "template": {
+          "id|+1": 1,
+          "name": "@cname",
+          "email": "@email",
+          "age|18-60": 1,
+          "address": "@city(true)",
+          "avatar": "@image('200x200')",
+          "createTime": "@datetime"
+        }
+      },
+      "pagination": {
+        "enabled": true,
+        "pageSize": 10
+      }
+    }
+  }
+}
+```
+
+#### 可用的 Mock.js 模板
+
+- `@cname` - 生成中文姓名
+- `@name` - 生成英文姓名
+- `@email` - 生成邮箱地址
+- `@datetime` - 生成日期时间
+- `@image` - 生成图片链接
+- `@city` - 生成城市名
+- `@id` - 生成随机 ID
+- `@guid` - 生成 GUID
+- `@title` - 生成标题
+- `@paragraph` - 生成段落
+- `|+1` - 自增数字
+
+更多 Mock.js 模板请访问 [Mock.js 文档](http://mockjs.com/examples.html)
+
+#### Mock.js 使用示例
+
+1. 生成用户列表：
+```json
+{
+  "mock": {
+    "enabled": true,
+    "total": 100,
+    "template": {
+      "id|+1": 1,
+      "name": "@cname",
+      "email": "@email"
+    }
+  }
+}
+```
+
+2. 生成文章列表：
+```json
+{
+  "mock": {
+    "enabled": true,
+    "total": 50,
+    "template": {
+      "id|+1": 1,
+      "title": "@ctitle",
+      "content": "@cparagraph",
+      "author": "@cname",
+      "publishDate": "@datetime"
+    }
+  }
+}
+```
+
+3. 生成商品列表：
+```json
+{
+  "mock": {
+    "enabled": true,
+    "total": 30,
+    "template": {
+      "id|+1": 1,
+      "name": "@ctitle(3, 5)",
+      "price|100-1000.2": 1,
+      "category": "@pick(['电子产品', '图书', '服装'])",
+      "image": "@image('200x200', '#50B347', '#FFF', 'Mock.js')"
     }
   }
 }
