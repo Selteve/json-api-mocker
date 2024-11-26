@@ -18,7 +18,29 @@ export class MockServer {
   private setupMiddleware() {
     this.app.use(cors());
     this.app.use(express.json());
+    this.app.use(this.logRequest);
   }
+
+  private logRequest = (req: Request, res: Response, next: Function) => {
+    const startTime = Date.now();
+    const requestId = Math.random().toString(36).substring(7);
+
+    console.log(`[${new Date().toISOString()}] Request ${requestId}:`);
+    console.log(`  Method: ${req.method}`);
+    console.log(`  URL: ${req.url}`);
+    console.log(`  Query Params: ${JSON.stringify(req.query)}`);
+    console.log(`  Body: ${JSON.stringify(req.body)}`);
+
+    res.on('finish', () => {
+      const duration = Date.now() - startTime;
+      console.log(`[${new Date().toISOString()}] Response ${requestId}:`);
+      console.log(`  Status: ${res.statusCode}`);
+      console.log(`  Duration: ${duration}ms`);
+      console.log('----------------------------------------');
+    });
+
+    next();
+  };
 
   private generateMockData(config: MethodConfig) {
     try {
@@ -30,7 +52,7 @@ export class MockServer {
       }
       return config.response;
     } catch (error) {
-      console.error('生成 Mock 数据时出错:', error);
+      console.error('Error generating mock data:', error);
       return config.response;
     }
   }
@@ -38,8 +60,6 @@ export class MockServer {
   private handleRequest(config: MethodConfig) {
     return (req: Request, res: Response) => {
       try {
-        console.log(`收到请求: ${req.method} ${req.url}`);
-        
         let responseData = this.generateMockData(config);
 
         if (config.pagination?.enabled && Array.isArray(responseData)) {
@@ -56,8 +76,8 @@ export class MockServer {
 
         res.json(responseData);
       } catch (error) {
-        console.error('处理请求时出错:', error);
-        res.status(500).json({ error: '服务器内部错误' });
+        console.error('Error handling request:', error);
+        res.status(500).json({ error: 'Internal server error' });
       }
     };
   }

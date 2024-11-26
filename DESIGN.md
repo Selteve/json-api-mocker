@@ -173,7 +173,7 @@ interface MethodConfig {
 ## 7. 未来规划
 
 ### 7.1 短期目标
-- 添加请求日志
+- ✅ 添加请求日志 (Completed in v1.2.0)
 - 支持文件上传
 - 添加测试用例
 
