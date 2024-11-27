@@ -1,7 +1,7 @@
 {
   "name": "json-api-mocker",
-  "version": "1.2.3",
-  "description": "一个基于 JSON 配置的 Mock 服务器",
+  "version": "1.2.4",
+  "description": "A mock server based on JSON configuration",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
