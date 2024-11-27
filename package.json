@@ -1,6 +1,6 @@
 {
   "name": "json-api-mocker",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "A mock server based on JSON configuration",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
