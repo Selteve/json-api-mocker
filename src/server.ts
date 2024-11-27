@@ -2,6 +2,15 @@ import Mock from 'mockjs';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { Config, MethodConfig } from './types';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+
+// 扩展 Request 类型以包含文件
+interface MulterRequest extends Request {
+  file?: Express.Multer.File;
+  files?: Express.Multer.File[];
+}
 
 export class MockServer {
   private app = express();
@@ -12,12 +21,14 @@ export class MockServer {
     this.config = config;
     this.configPath = configPath;
     this.setupMiddleware();
+    this.setupFileUpload();
     this.setupRoutes();
   }
 
   private setupMiddleware() {
     this.app.use(cors());
     this.app.use(express.json());
+    this.app.use('/uploads', express.static('uploads'));
     this.app.use(this.logRequest);
   }
 
@@ -108,6 +119,34 @@ export class MockServer {
         this.app.delete(`${fullPath}/:id`, this.handleRequest(config));
         break;
     }
+  }
+
+  private setupFileUpload() {
+    const upload = multer({ storage: multer.memoryStorage() });
+
+    this.app.post('/api/upload/avatar', upload.single('avatar'), (req: Request, res: Response) => {
+      const config = this.findRouteConfig('/upload/avatar', 'post');
+      if (!config) {
+        return res.status(404).json({ error: 'Route not found' });
+      }
+
+      const mockResponse = this.generateMockResponse(config);
+      res.json(mockResponse);
+    });
+
+    // 多文件上传的处理可以类似实现
+  }
+
+  private findRouteConfig(path: string, method: string): MethodConfig | null {
+    const route = this.config.routes.find(r => r.path === path);
+    return route?.methods[method] || null;
+  }
+
+  private generateMockResponse(config: MethodConfig) {
+    if (config.mock?.enabled && config.mock.template) {
+      return Mock.mock(config.mock.template);
+    }
+    return config.response;
   }
 
   public start() {
