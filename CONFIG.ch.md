@@ -108,21 +108,38 @@ routes 是一个数组，每个元素都是一个路由配置对象：
 }
 ```
 
-## Mock.js 模板使用说明
+### 6. 文件上传配置
 
-### 常用模板示例
+你可以在 `data.json` 中配置文件上传接口：
 
-- `@cname` - 生成中文姓名
-- `@name` - 生成英文姓名
-- `@email` - 生成邮箱地址
-- `@datetime` - 生成日期时间
-- `@image` - 生成图片链接
-- `@city` - 生成城市名
-- `@id` - 生成随机 ID
-- `@guid` - 生成 GUID
-- `@ctitle` - 生成中文标题
-- `@cparagraph` - 生成中文段落
-- `|+1` - 自增数字
+```json
+{
+  "path": "/upload/avatar",
+  "methods": {
+    "post": {
+      "type": "object",
+      "mock": {
+        "enabled": true,
+        "template": {
+          "success": true,
+          "message": "上传成功",
+          "data": {
+            "url": "@image('200x200')",
+            "filename": "@string(10).jpg",
+            "size": "@integer(1000, 1000000)"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| type | string | 是 | 文件上传必须为 "object" |
+| mock.enabled | boolean | 是 | 启用模拟响应 |
+| mock.template | object | 是 | 使用 Mock.js 语法的响应模板 |
 
 ## 完整配置示例
 
@@ -302,4 +319,4 @@ curl http://localhost:8080/api/users?page=2&pageSize=10
        "email": "string"
      }
    }
-   ``` 
+   ```

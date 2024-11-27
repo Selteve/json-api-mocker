@@ -108,6 +108,39 @@ Each HTTP method can include the following configurations:
 }
 ```
 
+### 6. File Upload Configuration
+
+You can configure file upload endpoints in your `data.json`:
+
+```json
+{
+  "path": "/upload/avatar",
+  "methods": {
+    "post": {
+      "type": "object",
+      "mock": {
+        "enabled": true,
+        "template": {
+          "success": true,
+          "message": "Upload successful",
+          "data": {
+            "url": "@image('200x200')",
+            "filename": "@string(10).jpg",
+            "size": "@integer(1000, 1000000)"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| type | string | Yes | Must be "object" for file uploads |
+| mock.enabled | boolean | Yes | Enable mock response |
+| mock.template | object | Yes | Response template using Mock.js syntax |
+
 ## Complete Configuration Examples
 
 ### 1. Basic User CRUD API
@@ -266,6 +299,6 @@ Each HTTP method can include the following configurations:
        "name": "string",
        "age": "number",
        "email": "string"
-     }
-   }
-   ``` 
+    }
+  }
+```

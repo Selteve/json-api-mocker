@@ -15,7 +15,8 @@ A lightweight and flexible mock server that uses JSON configuration to quickly c
 - 📝 Automatic data persistence
 - 🔍 Built-in pagination support
 - 🛠 Customizable response schemas
-- 💡 Integration with Mock.js for powerful data mocking
+- 🎭 Integration with Mock.js for powerful data mocking
+- 📤 File upload support
 - 💡 TypeScript support
 
 ## 📦 Installation
@@ -64,6 +65,26 @@ Create a `data.json` file in your project root:
           ]
         }
       }
+    },
+    {
+      "path": "/upload/avatar",
+      "methods": {
+        "post": {
+          "type": "object",
+          "mock": {
+            "enabled": true,
+            "template": {
+              "success": true,
+              "message": "Upload successful",
+              "data": {
+                "url": "@image('200x200')",
+                "filename": "@string(10).jpg",
+                "size": "@integer(1000, 1000000)"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }
@@ -104,8 +125,7 @@ Mock Server is running:
 Available APIs:
   GET http://localhost:8080/api/users
   POST http://localhost:8080/api/users
-  PUT http://localhost:8080/api/users/:id
-  DELETE http://localhost:8080/api/users/:id
+  POST http://localhost:8080/api/upload/avatar
 ```
 
 ## 📖 Configuration Guide
@@ -153,103 +173,49 @@ Each route can support multiple HTTP methods:
 }
 ```
 
-### Mock.js Integration
+### File Upload Support
 
-You can use Mock.js templates to generate dynamic data:
+You can configure file upload endpoints in your `data.json`:
 
 ```json
 {
-  "path": "/users",
+  "path": "/upload/avatar",
   "methods": {
-    "get": {
-      "type": "array",
+    "post": {
+      "type": "object",
       "mock": {
         "enabled": true,
-        "total": 200,
         "template": {
-          "id|+1": 1,
-          "name": "@name",
-          "email": "@email",
-          "age|18-60": 1,
-          "address": "@city(true)",
-          "avatar": "@image('200x200')",
-          "createTime": "@datetime"
+          "success": true,
+          "message": "Upload successful",
+          "data": {
+            "url": "@image('200x200')",
+            "filename": "@string(10).jpg",
+            "size": "@integer(1000, 1000000)"
+          }
         }
-      },
-      "pagination": {
-        "enabled": true,
-        "pageSize": 10
       }
     }
   }
 }
 ```
 
-#### Available Mock.js Templates
+#### Example Usage:
 
-- `@name` - Generate random name
-- `@email` - Generate random email
-- `@datetime` - Generate random datetime
-- `@image` - Generate random image URL
-- `@city` - Generate random city name
-- `@id` - Generate random ID
-- `@guid` - Generate GUID
-- `@title` - Generate random title
-- `@paragraph` - Generate random paragraph
-- `|+1` - Auto increment number
+```bash
+# Upload single file
+curl -X POST http://localhost:8080/api/upload/avatar \
+  -H "Content-Type: multipart/form-data" \
+  -F "avatar=@/path/to/your/image.jpg"
 
-For more Mock.js templates, visit [Mock.js Documentation](http://mockjs.com/examples.html)
-
-#### Examples with Mock.js
-
-1. Generate user list with random data:
-```json
-{
-  "mock": {
-    "enabled": true,
-    "total": 100,
-    "template": {
-      "id|+1": 1,
-      "name": "@name",
-      "email": "@email"
-    }
-  }
-}
+# Upload multiple files
+curl -X POST http://localhost:8080/api/upload/images \
+  -H "Content-Type: multipart/form-data" \
+  -F "images=@/path/to/image1.jpg" \
+  -F "images=@/path/to/image2.jpg"
 ```
 
-2. Generate article list with random content:
-```json
-{
-  "mock": {
-    "enabled": true,
-    "total": 50,
-    "template": {
-      "id|+1": 1,
-      "title": "@title",
-      "content": "@paragraph",
-      "author": "@name",
-      "publishDate": "@datetime"
-    }
-  }
-}
-```
-
-3. Generate product list with random prices:
-```json
-{
-  "mock": {
-    "enabled": true,
-    "total": 30,
-    "template": {
-      "id|+1": 1,
-      "name": "@title(3, 5)",
-      "price|100-1000.2": 1,
-      "category": "@pick(['Electronics', 'Books', 'Clothing'])",
-      "image": "@image('200x200', '#50B347', '#FFF', 'Mock.js')"
-    }
-  }
-}
-```
+For detailed configuration options, please refer to [CONFIG.md](./CONFIG.md#file-upload-configuration).
 
 ## 🎯 API Examples
 

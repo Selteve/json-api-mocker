@@ -3,11 +3,10 @@
 一个轻量级且灵活的 Mock 服务器，通过 JSON 配置快速创建 RESTful API。
 
 <p align="center">
-  <img src="https://img.shields.io/npm/v/json-api-mocker" alt="npm version" />
-  <img src="https://img.shields.io/npm/l/json-api-mocker" alt="license" />
-  <img src="https://img.shields.io/npm/dt/json-api-mocker" alt="downloads" />
+  <img src="https://img.shields.io/npm/v/json-api-mocker" alt="npm 版本" />
+  <img src="https://img.shields.io/npm/l/json-api-mocker" alt="许可证" />
+  <img src="https://img.shields.io/npm/dt/json-api-mocker" alt="下载量" />
 </p>
-
 
 ## ✨ 特性
 
@@ -16,7 +15,8 @@
 - 📝 自动数据持久化
 - 🔍 内置分页支持
 - 🛠 可自定义响应结构
-- 💡 集成 Mock.js 实现强大的数据模拟
+- 🎭 集成 Mock.js 实现强大的数据模拟
+- 📤 支持文件上传
 - 💡 TypeScript 支持
 
 ## 📦 安装
@@ -65,6 +65,26 @@ pnpm add json-api-mocker
           ]
         }
       }
+    },
+    {
+      "path": "/upload/avatar",
+      "methods": {
+        "post": {
+          "type": "object",
+          "mock": {
+            "enabled": true,
+            "template": {
+              "success": true,
+              "message": "上传成功",
+              "data": {
+                "url": "@image('200x200')",
+                "filename": "@string(10).jpg",
+                "size": "@integer(1000, 1000000)"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }
@@ -105,8 +125,7 @@ Mock 服务器已启动：
 可用的接口：
   GET http://localhost:8080/api/users
   POST http://localhost:8080/api/users
-  PUT http://localhost:8080/api/users/:id
-  DELETE http://localhost:8080/api/users/:id
+  POST http://localhost:8080/api/upload/avatar
 ```
 
 ## 📖 配置指南
@@ -154,104 +173,49 @@ Mock 服务器已启动：
 }
 ```
 
-### Mock.js 集成
+### 文件上传支持
 
-你可以使用 Mock.js 模板来生成动态数据：
+你可以在 `data.json` 中配置文件上传接口：
 
 ```json
 {
-  "path": "/users",
+  "path": "/upload/avatar",
   "methods": {
-    "get": {
-      "type": "array",
+    "post": {
+      "type": "object",
       "mock": {
         "enabled": true,
-        "total": 200,
         "template": {
-          "id|+1": 1,
-          "name": "@cname",
-          "email": "@email",
-          "age|18-60": 1,
-          "address": "@city(true)",
-          "avatar": "@image('200x200')",
-          "createTime": "@datetime"
+          "success": true,
+          "message": "上传成功",
+          "data": {
+            "url": "@image('200x200')",
+            "filename": "@string(10).jpg",
+            "size": "@integer(1000, 1000000)"
+          }
         }
-      },
-      "pagination": {
-        "enabled": true,
-        "pageSize": 10
       }
     }
   }
 }
 ```
 
-#### 可用的 Mock.js 模板
+#### 使用示例：
 
-- `@cname` - 生成中文姓名
-- `@name` - 生成英文姓名
-- `@email` - 生成邮箱地址
-- `@datetime` - 生成日期时间
-- `@image` - 生成图片链接
-- `@city` - 生成城市名
-- `@id` - 生成随机 ID
-- `@guid` - 生成 GUID
-- `@title` - 生成标题
-- `@paragraph` - 生成段落
-- `|+1` - 自增数字
+```bash
+# 上传单个文件
+curl -X POST http://localhost:8080/api/upload/avatar \
+  -H "Content-Type: multipart/form-data" \
+  -F "avatar=@/path/to/your/image.jpg"
 
-更多 Mock.js 模板请访问 [Mock.js 文档](http://mockjs.com/examples.html)
-
-#### Mock.js 使用示例
-
-1. 生成用户列表：
-```json
-{
-  "mock": {
-    "enabled": true,
-    "total": 100,
-    "template": {
-      "id|+1": 1,
-      "name": "@cname",
-      "email": "@email"
-    }
-  }
-}
+# 上传多个文件
+curl -X POST http://localhost:8080/api/upload/images \
+  -H "Content-Type: multipart/form-data" \
+  -F "images=@/path/to/image1.jpg" \
+  -F "images=@/path/to/image2.jpg"
 ```
 
-2. 生成文章列表：
-```json
-{
-  "mock": {
-    "enabled": true,
-    "total": 50,
-    "template": {
-      "id|+1": 1,
-      "title": "@ctitle",
-      "content": "@cparagraph",
-      "author": "@cname",
-      "publishDate": "@datetime"
-    }
-  }
-}
-```
-
-3. 生成商品列表：
-```json
-{
-  "mock": {
-    "enabled": true,
-    "total": 30,
-    "template": {
-      "id|+1": 1,
-      "name": "@ctitle(3, 5)",
-      "price|100-1000.2": 1,
-      "category": "@pick(['电子产品', '图书', '服装'])",
-      "image": "@image('200x200', '#50B347', '#FFF', 'Mock.js')"
-    }
-  }
-}
-```
+详细配置选项请参考 [CONFIG.ch.md](./CONFIG.ch.md#文件上传配置)。
 
 ## 🎯 API 示例
 
@@ -340,7 +304,7 @@ curl http://localhost:8080/api/users?page=2&pageSize=10
 
 ## 📄 许可证
 
-MIT © [熊海印]
+MIT © [熊海银]
 
 ## 🙏 致谢
 
