@@ -1,15 +1,19 @@
 declare module 'express' {
-  export * from '@types/express';
+  import express from 'express';
+  export = express;
 }
 
 declare module 'cors' {
-  export * from '@types/cors';
+  import cors from 'cors';
+  export = cors;
 }
 
 declare module 'fs' {
-  export * from 'node:fs';
+  import * as fs from 'node:fs';
+  export = fs;
 }
 
 declare module 'path' {
-  export * from 'node:path';
+  import * as path from 'node:path';
+  export = path;
 } 

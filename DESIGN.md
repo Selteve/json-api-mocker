@@ -174,8 +174,8 @@ interface MethodConfig {
 
 ### 7.1 短期目标
 - ✅ 添加请求日志 (Completed in v1.2.0)
-- 支持文件上传
-- 添加测试用例
+- ✅ 支持文件上传 (Completed in v1.2.5)
+- ✅ 添加测试用例 (Completed in v1.2.6)
 
 ### 7.2 长期目标
 - 提供 Web 界面

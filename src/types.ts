@@ -11,7 +11,7 @@ export interface PaginationConfig {
 
 export interface MockConfig {
   enabled: boolean;
-  total: number;
+  total?: number;
   template: Record<string, any>;
 }
 

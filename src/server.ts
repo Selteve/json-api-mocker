@@ -1,5 +1,5 @@
 import Mock from 'mockjs';
-import express, { Request, Response } from 'express';
+import express, { Request, Response, Express } from 'express';
 import cors from 'cors';
 import { Config, MethodConfig } from './types';
 import multer from 'multer';
@@ -13,7 +13,7 @@ interface MulterRequest extends Request {
 }
 
 export class MockServer {
-  private app = express();
+  private app: Express = express();
   private config: Config;
   private configPath: string;
 
@@ -21,8 +21,11 @@ export class MockServer {
     this.config = config;
     this.configPath = configPath;
     this.setupMiddleware();
-    this.setupFileUpload();
     this.setupRoutes();
+  }
+
+  public getApp(): Express {
+    return this.app;
   }
 
   private setupMiddleware() {
@@ -110,7 +113,15 @@ export class MockServer {
         this.app.get(fullPath, this.handleRequest(config));
         break;
       case 'post':
-        this.app.post(fullPath, this.handleRequest(config));
+        if (path === '/upload/avatar') {
+          // 对于文件上传路由，使用特殊处理
+          this.app.post(fullPath, (req: Request, res: Response) => {
+            const mockResponse = this.generateMockData(config);
+            res.json(mockResponse);
+          });
+        } else {
+          this.app.post(fullPath, this.handleRequest(config));
+        }
         break;
       case 'put':
         this.app.put(`${fullPath}/:id`, this.handleRequest(config));
@@ -119,22 +130,6 @@ export class MockServer {
         this.app.delete(`${fullPath}/:id`, this.handleRequest(config));
         break;
     }
-  }
-
-  private setupFileUpload() {
-    const upload = multer({ storage: multer.memoryStorage() });
-
-    this.app.post('/api/upload/avatar', upload.single('avatar'), (req: Request, res: Response) => {
-      const config = this.findRouteConfig('/upload/avatar', 'post');
-      if (!config) {
-        return res.status(404).json({ error: 'Route not found' });
-      }
-
-      const mockResponse = this.generateMockResponse(config);
-      res.json(mockResponse);
-    });
-
-    // 多文件上传的处理可以类似实现
   }
 
   private findRouteConfig(path: string, method: string): MethodConfig | null {
