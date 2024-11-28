@@ -130,6 +130,8 @@ Available APIs:
 
 ## 📖 Configuration Guide
 
+For detailed configuration options, please refer to [CONFIG.md](./CONFIG.md).
+
 ### Server Configuration
 
 The `server` section configures basic server settings:
