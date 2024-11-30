@@ -17,6 +17,7 @@ A lightweight and flexible mock server that uses JSON configuration to quickly c
 - 🛠 Customizable response schemas
 - 🎭 Integration with Mock.js for powerful data mocking
 - 📤 File upload support
+- 🔌 Real-time communication with WebSocket
 - 💡 TypeScript support
 
 ## 📦 Installation
@@ -295,6 +296,89 @@ Add schema validation for POST/PUT requests:
   }
 }
 ```
+
+### WebSocket Support
+
+You can configure WebSocket endpoints in your `data.json`:
+
+```json
+{
+  "websocket": {
+    "enabled": true,
+    "path": "/ws",
+    "events": {
+      "realtime-data": {
+        "mock": {
+          "enabled": true,
+          "interval": 5000,  // Send data every 5 seconds
+          "template": {
+            "timestamp": "@datetime",
+            "value|1-100": 1,
+            "status|1": ["normal", "warning", "error"]
+          }
+        }
+      },
+      "user-status": {
+        "mock": {
+          "enabled": true,
+          "template": {
+            "userId|+1": 1,
+            "status|1": ["online", "offline", "away"],
+            "lastActive": "@datetime"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### Client Usage Example:
+
+```javascript
+// Connect to WebSocket server
+const ws = new WebSocket('ws://localhost:8080/ws');
+
+// Handle connection open
+ws.onopen = () => {
+  console.log('Connected to WebSocket server');
+  
+  // Request real-time data
+  ws.send(JSON.stringify({
+    event: 'realtime-data'
+  }));
+};
+
+// Handle incoming messages
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log('Received:', data);
+  // {
+  //   event: 'realtime-data',
+  //   data: {
+  //     timestamp: '2024-01-01 12:00:00',
+  //     value: 75,
+  //     status: 'normal'
+  //   }
+  // }
+};
+
+// Handle errors
+ws.onerror = (error) => {
+  console.error('WebSocket error:', error);
+};
+
+// Handle connection close
+ws.onclose = () => {
+  console.log('Disconnected from WebSocket server');
+};
+```
+
+#### Features:
+- Event-based communication
+- Automatic data sending at specified intervals
+- Mock.js template support for dynamic data
+- Multiple event handlers
 
 ## 🤝 Contributing
 

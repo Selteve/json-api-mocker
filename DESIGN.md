@@ -179,7 +179,7 @@ interface MethodConfig {
 
 ### 7.2 长期目标
 - 提供 Web 界面
-- 支持 WebSocket
+- ✅ 支持 WebSocket (Completed in v1.3.0)
 - 支持数据库存储
 - 支持集群部署
 

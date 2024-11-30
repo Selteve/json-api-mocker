@@ -30,7 +30,22 @@ export interface RouteConfig {
   };
 }
 
+export interface WebSocketConfig {
+  enabled: boolean;
+  path: string;
+  events?: {
+    [key: string]: {
+      mock: {
+        enabled: boolean;
+        template: Record<string, any>;
+        interval?: number;
+      };
+    };
+  };
+}
+
 export interface Config {
   server: ServerConfig;
   routes: RouteConfig[];
+  websocket?: WebSocketConfig;
 } 

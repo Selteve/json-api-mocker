@@ -5,6 +5,8 @@ import { Config, MethodConfig } from './types';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { Server as WebSocketServer } from 'ws';
+import http from 'http';
 
 // 扩展 Request 类型以包含文件
 interface MulterRequest extends Request {
@@ -14,14 +16,20 @@ interface MulterRequest extends Request {
 
 export class MockServer {
   private app: Express = express();
+  private server: http.Server;
+  private wss: WebSocketServer | null = null;
   private config: Config;
   private configPath: string;
 
   constructor(config: Config, configPath: string = 'data.json') {
     this.config = config;
     this.configPath = configPath;
+    this.server = http.createServer(this.app);
     this.setupMiddleware();
     this.setupRoutes();
+    if (config.websocket?.enabled) {
+      this.setupWebSocket();
+    }
   }
 
   public getApp(): Express {
@@ -144,10 +152,64 @@ export class MockServer {
     return config.response;
   }
 
+  private setupWebSocket() {
+    if (!this.config.websocket) return;
+
+    this.wss = new WebSocketServer({ 
+      server: this.server,
+      path: this.config.websocket.path 
+    });
+
+    this.wss.on('connection', (ws) => {
+      console.log('WebSocket client connected');
+
+      // 处理客户端消息
+      ws.on('message', (message) => {
+        try {
+          const data = JSON.parse(message.toString());
+          const eventConfig = this.config.websocket?.events?.[data.event];
+          
+          if (eventConfig?.mock.enabled) {
+            const response = Mock.mock(eventConfig.mock.template);
+            ws.send(JSON.stringify({
+              event: data.event,
+              data: response
+            }));
+          }
+        } catch (error) {
+          console.error('Error handling WebSocket message:', error);
+        }
+      });
+
+      // 设置自动发送数据的定时器
+      if (this.config.websocket && this.config.websocket.events) {
+        Object.entries(this.config.websocket.events).forEach(([event, config]) => {
+          if (config.mock.interval) {
+            setInterval(() => {
+              const response = Mock.mock(config.mock.template);
+              ws.send(JSON.stringify({
+                event,
+                data: response
+              }));
+            }, config.mock.interval);
+          }
+        });
+      }
+
+      ws.on('close', () => {
+        // 移除日志，避免测试完成后的日志输出
+        // console.log('WebSocket client disconnected');
+      });
+    });
+  }
+
   public start() {
-    this.app.listen(this.config.server.port, () => {
+    this.server.listen(this.config.server.port, () => {
       console.log(`Mock 服务器已启动:`);
-      console.log(`- 地址: http://localhost:${this.config.server.port}`);
+      console.log(`- HTTP 地址: http://localhost:${this.config.server.port}`);
+      if (this.config.websocket?.enabled) {
+        console.log(`- WebSocket 地址: ws://localhost:${this.config.server.port}${this.config.websocket.path}`);
+      }
       console.log(`- 基础路径: ${this.config.server.baseProxy}`);
       console.log('可用的接口:');
       this.config.routes.forEach(route => {
@@ -156,5 +218,17 @@ export class MockServer {
         });
       });
     });
+  }
+
+  public close() {
+    // 关闭所有 WebSocket 连接
+    if (this.wss) {
+      this.wss.clients.forEach(client => {
+        client.close();
+      });
+      this.wss.close();
+    }
+    // 关闭 HTTP 服务器
+    this.server.close();
   }
 } 

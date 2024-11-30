@@ -302,3 +302,41 @@ You can configure file upload endpoints in your `data.json`:
     }
   }
 ```
+
+### WebSocket Configuration
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| enabled | boolean | Yes | Enable/disable WebSocket support |
+| path | string | Yes | WebSocket endpoint path |
+| events | object | No | Event configurations |
+
+#### Event Configuration
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| mock.enabled | boolean | Yes | Enable/disable mock data for this event |
+| mock.interval | number | No | Interval (ms) for automatic data sending |
+| mock.template | object | Yes | Mock.js template for response data |
+
+Example:
+```json
+{
+  "websocket": {
+    "enabled": true,
+    "path": "/ws",
+    "events": {
+      "event-name": {
+        "mock": {
+          "enabled": true,
+          "interval": 5000,
+          "template": {
+            "field1": "@value",
+            "field2|1-100": 1
+          }
+        }
+      }
+    }
+  }
+}
+```

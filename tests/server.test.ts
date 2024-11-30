@@ -1,6 +1,7 @@
 import { MockServer } from '../src/server';
 import request from 'supertest';
 import { Config } from '../src/types';
+import WebSocket from 'ws';
 
 describe('MockServer', () => {
   let config: Config;
@@ -95,5 +96,58 @@ describe('MockServer', () => {
     expect(response.body.data).toHaveProperty('url');
     expect(response.body.data).toHaveProperty('filename');
     expect(response.body.data).toHaveProperty('size');
+  });
+
+  describe('WebSocket Support', () => {
+    let server: MockServer;
+
+    afterEach(() => {
+      if (server) {
+        server.close();
+      }
+    });
+
+    it('should handle WebSocket connections and messages', (done) => {
+      config.websocket = {
+        enabled: true,
+        path: '/ws',
+        events: {
+          'test-event': {
+            mock: {
+              enabled: true,
+              template: {
+                message: 'test message',
+                timestamp: '@datetime'
+              }
+            }
+          }
+        }
+      };
+
+      server = new MockServer(config);
+      server.start();
+
+      const ws = new WebSocket(`ws://localhost:${config.server.port}/ws`);
+
+      ws.on('open', () => {
+        ws.send(JSON.stringify({
+          event: 'test-event'
+        }));
+      });
+
+      ws.on('message', (data) => {
+        const response = JSON.parse(data.toString());
+        expect(response.event).toBe('test-event');
+        expect(response.data).toHaveProperty('message');
+        expect(response.data).toHaveProperty('timestamp');
+        ws.close();
+        done();
+      });
+
+      // 添加错误处理
+      ws.on('error', (error) => {
+        done(error);
+      });
+    });
   });
 }); 

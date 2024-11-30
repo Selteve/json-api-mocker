@@ -17,6 +17,7 @@
 - 🛠 可自定义响应结构
 - 🎭 集成 Mock.js 实现强大的数据模拟
 - 📤 支持文件上传
+- 🔌 支持 WebSocket 实时通信
 - 💡 TypeScript 支持
 
 ## 📦 安装
@@ -295,6 +296,89 @@ curl http://localhost:8080/api/users?page=2&pageSize=10
   }
 }
 ```
+
+### WebSocket 支持
+
+你可以在 `data.json` 中配置 WebSocket 接口：
+
+```json
+{
+  "websocket": {
+    "enabled": true,
+    "path": "/ws",
+    "events": {
+      "realtime-data": {
+        "mock": {
+          "enabled": true,
+          "interval": 5000,  // 每5秒发送一次数据
+          "template": {
+            "timestamp": "@datetime",
+            "value|1-100": 1,
+            "status|1": ["normal", "warning", "error"]
+          }
+        }
+      },
+      "user-status": {
+        "mock": {
+          "enabled": true,
+          "template": {
+            "userId|+1": 1,
+            "status|1": ["online", "offline", "away"],
+            "lastActive": "@datetime"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### 客户端使用示例：
+
+```javascript
+// 连接 WebSocket 服务器
+const ws = new WebSocket('ws://localhost:8080/ws');
+
+// 处理连接打开
+ws.onopen = () => {
+  console.log('已连接到 WebSocket 服务器');
+  
+  // 请求实时数据
+  ws.send(JSON.stringify({
+    event: 'realtime-data'
+  }));
+};
+
+// 处理接收到的消息
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log('收到数据:', data);
+  // {
+  //   event: 'realtime-data',
+  //   data: {
+  //     timestamp: '2024-01-01 12:00:00',
+  //     value: 75,
+  //     status: 'normal'
+  //   }
+  // }
+};
+
+// 处理错误
+ws.onerror = (error) => {
+  console.error('WebSocket 错误:', error);
+};
+
+// 处理连接关闭
+ws.onclose = () => {
+  console.log('与 WebSocket 服务器断开连接');
+};
+```
+
+#### 特性：
+- 基于事件的通信
+- 支持指定间隔自动发送数据
+- 支持 Mock.js 模板生成动态数据
+- 支持多个事件处理器
 
 ## 🤝 贡献指南
 
